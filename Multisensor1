@@ -51,13 +51,13 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <DHT.h>
-#define dht_pin 8
-#define CHILD_ID_HUM 5
+#define dht_pin 8//define your DHT_PIN
+#define CHILD_ID_HUM 5//define sensor ID`s
 #define CHILD_ID_TEMP 6
 #define CHILD_ID_LIGHT 7
-#define LDR_Pin A1
+#define LDR_Pin A1//define LDR analog pin
 #define NODE_ID 6//change to suit or remove and add NULL, AUTO to gw.begin() and remove NODE_ID
-#define noRelays 2
+#define noRelays 2//define number of relays
 const int relayPin[] = {3, 6};         //  switch around pins to your desire
 const int buttonPin[] = {4, 5};     //  switch around pins to your desire
 
