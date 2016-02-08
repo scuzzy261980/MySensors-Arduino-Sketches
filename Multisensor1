@@ -21,7 +21,7 @@
  * REVISION HISTORY
  * Version 1.0 - Henrik Ekblad
  * 
- * DESCRIPTION
+ * DESCRIPTION 
  * Example sketch showing how to request time from controller which is stored in RTC module
  * The time and temperature (DS3231/DS3232) is shown on an attached Crystal LCD display
  * 
