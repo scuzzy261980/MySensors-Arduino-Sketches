@@ -1,31 +1,35 @@
+//includes
 #include "DHT.h"
 #include <Wire.h>
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 //#include "SSD1306.h" // alias for `#include "SSD1306Wire.h"`
-#include "images.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-bool light;
-const char* ssid = "EE-se6k4x";
-const char* password = "photoshop2020";
-char* inTopic = "landing/light";
-char* topic = "landing/status";
-char* server = "192.168.1.75";
-char* hellotopic = "hello_topic";
-char message_buff[100];
-void callback(char* topic, byte* payload, unsigned int length);
+//defines
 #define DHTPIN 14     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
 #define REPORT_INTERVAL 30 // in sec
+
+//variables
+bool light;
+const char* ssid = "your_ssid";
+const char* password = "your_password";
+char* inTopic = "landing/light";
+char* topic = "landing/status";
+char* server = "your_mqtt_server_address";
+char* hellotopic = "hello_topic";
+char message_buff[100];
+void callback(char* topic, byte* payload, unsigned int length);
+
 String clientName;
 unsigned long previousTimer = -1;
 DHT dht(DHTPIN, DHTTYPE, 15);
 WiFiClient wifiClient;
 PubSubClient client(server, 1883, callback , wifiClient);
-Adafruit_SSD1306 display(0x3c);
-int led0Pin = 16;
+Adafruit_SSD1306 display(0x3c);//0x3c is the standard address of this display, check yours using i2cScanner
+int led0Pin = 16;//relay pin
 float t;
 float h;
 float oldH ;
@@ -33,6 +37,7 @@ float oldT ;
 void drawTextAlignmentDemo();
 void setup() {
 
+  //set up and start our display
   display.begin(0x3C);
   display.display();
   display.clearDisplay();
@@ -43,10 +48,12 @@ void setup() {
   display.display();
   delay(3000);
 
+  //set up mqtt server connection
   client.setServer(server, 1883);
   client.setCallback(callback);
   client.subscribe(inTopic);
 
+  //serial begin
   Serial.begin(38400);
   Serial.println("DHTxx test!");
   delay(20);
@@ -57,6 +64,7 @@ void setup() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
+  //connect to wifi
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
@@ -91,6 +99,8 @@ void setup() {
   Serial.print(" as ");
   Serial.println(clientName);
 
+  
+  //draw our display and print info
   if (client.connect((char*) clientName.c_str())) {
     Serial.println("Connected to MQTT broker");
     Serial.print("Topic is: ");
@@ -131,11 +141,11 @@ void loop() {
 
 
 
-  if (!client.connected()) {
+  if (!client.connected()) { //if not connected to mqtt server try to connect again
     reconnect();
   }
 
-  client.subscribe(inTopic);
+  client.subscribe(inTopic); //subscribe to recieve messages from my openhab2 server
   delay(10);
 
 
@@ -144,15 +154,15 @@ void loop() {
 
 
 
-    sendTemperature();
+    sendTemperature();//publish sensor data to mqtt server
     previousTimer = timer;
   }
 
-  client.loop();
+  client.loop();//this ensures the ESP is listening for incoming messages regularly
   delay(100);
 
 }
-
+//send data
 void sendTemperature() {
 
   float h = dht.readHumidity();
@@ -166,6 +176,7 @@ void sendTemperature() {
 
   float hi = dht.computeHeatIndex(f, h);
 
+  //print temp and hum readings to oled
   Serial.print("Humidity: ");
   Serial.print(h);
   Serial.print(" %\t");
@@ -178,6 +189,7 @@ void sendTemperature() {
   Serial.print(hi);
   Serial.println(" *F");
 
+  //create payload string to send
   String payload = "{\"Humidity\":";
   payload += h;
   payload += ",\"Temperature\":";
@@ -220,7 +232,7 @@ void sendTemperature() {
     Serial.print("Sending payload: ");
     Serial.println(payload);
 
-    if (client.publish(topic, (char*) payload.c_str())) {
+    if (client.publish(topic, (char*) payload.c_str())) { //send the data
       Serial.println("Publish ok");
     }
     else {
@@ -253,9 +265,9 @@ void sendTemperature() {
   display.display();
 }
 
-
+//this handles any incoming messages and processecs them 
 void callback(char* topic, byte* payload, unsigned int length) {
-  // handle message arrived
+
 
   int state = digitalRead(led0Pin);
   String topicStr = topic;
