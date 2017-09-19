@@ -30,8 +30,8 @@ WiFiClient wifiClient;
 PubSubClient client(server, 1883, callback , wifiClient);
 Adafruit_SSD1306 display(0x3c);//0x3c is the standard address of this display, check yours using i2cScanner
 int led0Pin = 16;//relay pin
-float t;
-float h;
+float t; //float to hold DHT22 temperature
+float h;//float to hold DHT22 humidity 
 float oldH ;
 float oldT ;
 void drawTextAlignmentDemo();
@@ -329,13 +329,13 @@ String macToStr(const uint8_t* mac)
   }
   return result;
 }
-
+//scroll a simple message when light message is recieved
 void testscrolltext(void) {
   //display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(10, 0);
   display.clearDisplay();
-  display.println("Light Changed: ");
+  display.println("Light Changed to..");
   display.print( light );
   display.display();
   delay(1);
@@ -343,18 +343,5 @@ void testscrolltext(void) {
   display.startscrollright(0x00, 0x0F);
   delay(8500);
   display.stopscroll();
- // delay(3000);
 
- 
-  /*
-    display.startscrollleft(0x00, 0x0F);
-    delay(2000);
-    display.stopscroll();
-    delay(1000);
-    display.startscrolldiagright(0x00, 0x07);
-    delay(2000);
-    display.startscrolldiagleft(0x00, 0x07);
-    delay(2000);
-    display.stopscroll();
-  */
 }
